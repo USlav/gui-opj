@@ -1,0 +1,14 @@
+/Artikel.class
+/Depo.class
+/Dimenzije.class
+/OznakaZaboja.class
+/Paket.class
+/Posiljka.class
+/PremiumSkladisce.class
+/Skladisce.class
+/Transportni.class
+/Zaboj.class
+/SkladiscenjeException.class
+/PredragoException.class
+/OznakaZabojaException.class
+/DimenzijeException.class
