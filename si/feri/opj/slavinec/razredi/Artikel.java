@@ -42,4 +42,10 @@ public class Artikel {
         return "Artikel{" + "naziv='" + naziv + '\'' + ", dimenzije=" + dimenzije + ", teza=" + teza + ", cena=" + cena
                 + '}';
     }
+    public double getTeza() {
+		return teza;
+	}
+    
+    
+	
 }

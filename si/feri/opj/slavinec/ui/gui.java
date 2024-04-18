@@ -45,11 +45,20 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JMenuBar;
 import javax.swing.JComboBox;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class gui {
-	private static int counterArtikel = 0;
     private static Map<String, Artikel> artikelMap = new HashMap<>();
 	private Boolean tezaCena = false;
+	private int counter = 1;
+    DefaultTableModel tableModel;
+
+	
 	
 	private JFrame frame;
 	private JTextField text_NazivArtikla;
@@ -80,11 +89,16 @@ public class gui {
 				try {
 					gui window = new gui();
 					window.frame.setVisible(true);
+					
+					
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
+			
 		});
+		
 	}
 
 	/**
@@ -92,12 +106,15 @@ public class gui {
 	 */
 	public gui() {
 		initialize();
+		
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
+	
 	private void initialize() {
+		
 		frame = new JFrame();
 		frame.setBounds(100, 100, 700, 500);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -140,10 +157,6 @@ public class gui {
 		lblNewLabel_2.setBounds(10, 176, 86, 14);
 		UpravljanjeArtiklov.add(lblNewLabel_2);
 		
-		JList list_SpremeniArtikel = new JList();
-		list_SpremeniArtikel.setBounds(10, 201, 121, 106);
-		UpravljanjeArtiklov.add(list_SpremeniArtikel);
-		
 		JLabel lblNewLabel_3 = new JLabel("Odstrani Artikel:");
 		lblNewLabel_3.setBounds(10, 318, 86, 14);
 		UpravljanjeArtiklov.add(lblNewLabel_3);
@@ -161,7 +174,19 @@ public class gui {
 		UpravljanjeArtiklov.add(lblNewLabel_20);
 		
 		JCheckBox chckbx_TezaCenaArtikel = new JCheckBox("Opcijsko(teža,cena)");
-		chckbx_TezaCenaArtikel.setBounds(366, 7, 134, 23);
+		chckbx_TezaCenaArtikel.addActionListener(new ActionListener()  {
+			public void actionPerformed(ActionEvent e) {
+				tezaCena = !tezaCena;
+				if(tezaCena == true) {
+					text_CenaArtikel.setVisible(true);
+					text_TezaArtikel.setVisible(true);
+				}else {
+					text_CenaArtikel.setVisible(false);
+					text_TezaArtikel.setVisible(false);
+				}
+			}
+		});
+		chckbx_TezaCenaArtikel.setBounds(366, 7, 157, 23);
 		UpravljanjeArtiklov.add(chckbx_TezaCenaArtikel);
 		
 		JLabel lblNewLabel_21 = new JLabel("Teža");
@@ -173,35 +198,98 @@ public class gui {
 		UpravljanjeArtiklov.add(lblNewLabel_21_1);
 		
 		text_TezaArtikel = new JTextField();
+		text_TezaArtikel.setVisible(false);
 		text_TezaArtikel.setColumns(10);
 		text_TezaArtikel.setBounds(395, 47, 86, 20);
 		UpravljanjeArtiklov.add(text_TezaArtikel);
 		
 		text_CenaArtikel = new JTextField();
+		text_CenaArtikel.setVisible(false);
 		text_CenaArtikel.setColumns(10);
 		text_CenaArtikel.setBounds(395, 85, 86, 20);
 		UpravljanjeArtiklov.add(text_CenaArtikel);
 		
 		table_IzpisArtikla = new JTable();
+		table_IzpisArtikla.setCellSelectionEnabled(true);
+		
+		table_IzpisArtikla.setModel(new DefaultTableModel(
+			new Object[][] {
+				{"Naziv", "Vi\u0161ina", "\u0160irina", "Dol\u017Eina", "Te\u017Ea", "Cena"},
+			},
+			new String[] {
+				"Naziv", "Vi\u0161ina", "\u0160irina", "Dol\u017Eina", "Te\u017Ea", "Cena"
+			}
+		));
+		tableModel = (DefaultTableModel) table_IzpisArtikla.getModel();
 		table_IzpisArtikla.setBounds(182, 200, 299, 100);
 		UpravljanjeArtiklov.add(table_IzpisArtikla);
+		JComboBox<String> comboBox_SpremeniArtikel = new JComboBox<>();
+		comboBox_SpremeniArtikel.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				
+				String selectedKey = (String) comboBox_SpremeniArtikel.getSelectedItem();
+
+				Artikel selectedArtikel = artikelMap.get(selectedKey);
+
+				String naziv = selectedArtikel.getNaziv();
+				
+				double visina = selectedArtikel.getDimenzije().getVisina();
+				double sirina = selectedArtikel.getDimenzije().getSirina();
+				double dolzina = selectedArtikel.getDimenzije().getDolzina();
+				
+				double teza = selectedArtikel.getTeza();
+				double cena = selectedArtikel.getCena();
+				tableModel.setRowCount(1);
+				Object[] row = {naziv, visina,sirina,dolzina,teza,cena}; // Assuming name and price are columns in the table
+				tableModel.addRow(row);
+			}
+		});
 		
 		JButton btn_PotrdiArtikel = new JButton("Potrdi");
 		btn_PotrdiArtikel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String nazivArtikla = text_NazivArtikla.getText();
-				String visinaArtikla = text_VisinaArtikel.getText();
-				String dolzinaArtikla = text_DolzinaArtikel.getText();
+				String visinaArtikla = text_VisinaArtikel.getText();				
 				String sirinaArtikla = text_SirinaArtikel.getText();
-				
-				String ArtikelIme = "Artikel" + counterArtikel;
-				Artikel ArtikelObj = new Artikel(nazivArtikla, new Dimenzije(Double.parseDouble(visinaArtikla),Double.parseDouble(dolzinaArtikla),Double.parseDouble(sirinaArtikla)));
+				String dolzinaArtikla = text_DolzinaArtikel.getText();
+				Artikel ArtikelObj;
+				if(tezaCena == true) {
+					String tezaArtikla = text_TezaArtikel.getText();
+					String cenaArtikla = text_CenaArtikel.getText();
+					ArtikelObj = new Artikel(nazivArtikla, new Dimenzije(Double.parseDouble(visinaArtikla),Double.parseDouble(sirinaArtikla),Double.parseDouble(dolzinaArtikla)), Double.parseDouble(tezaArtikla), Double.parseDouble(cenaArtikla));
+				}else {
+					ArtikelObj = new Artikel(nazivArtikla, new Dimenzije(Double.parseDouble(visinaArtikla),Double.parseDouble(sirinaArtikla),Double.parseDouble(dolzinaArtikla)));
+
+				}
+				String ArtikelIme = nazivArtikla + " " + counter;
+				counter++;
 				artikelMap.put(ArtikelIme, ArtikelObj);
-				counterArtikel++;
+				
+				comboBox_SpremeniArtikel.removeAllItems(); // Clear the existing items
+			        for (String artikelIme : artikelMap.keySet()) {
+			        	comboBox_SpremeniArtikel.addItem(artikelIme);
+			        }
+			    tezaCena = false;
+			    text_NazivArtikla.setText("");
+				text_VisinaArtikel.setText("");
+				text_DolzinaArtikel.setText("");
+				text_SirinaArtikel.setText("");
+				text_CenaArtikel.setText("");
+				text_TezaArtikel.setText("");
+				text_CenaArtikel.setVisible(false);
+				text_TezaArtikel.setVisible(false);
+				chckbx_TezaCenaArtikel.setSelected(false);
+				
+
 			}
 		});
-		btn_PotrdiArtikel.setBounds(544, 7, 89, 23);
+		btn_PotrdiArtikel.setBounds(569, 7, 89, 23);
 		UpravljanjeArtiklov.add(btn_PotrdiArtikel);
+		
+		
+		comboBox_SpremeniArtikel.setBounds(10, 201, 121, 20);
+		UpravljanjeArtiklov.add(comboBox_SpremeniArtikel);
 		
 		JPanel UpravljanjeDepojev = new JPanel();
 		frame.getContentPane().add(UpravljanjeDepojev, "name_226376345575000");
@@ -593,4 +681,5 @@ public class gui {
 		JButton btn_Naprej = new JButton("Naprej");
 		menuBar.add(btn_Naprej);
 	}
+	
 }
